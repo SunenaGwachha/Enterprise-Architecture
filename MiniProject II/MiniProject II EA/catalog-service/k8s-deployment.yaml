@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogue-service-deployment
+  labels:
+    app: catalogue-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalogue-service
+  template:
+    metadata:
+      labels:
+        app: catalogue-service
+
+    spec:
+      containers:
+        - name: catalogue-service
+          image: kedikebba/catalogue-service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KEY1
+              valueFrom:
+                configMapKeyRef:
+                  name: catalogue-service-config
+                  key: someKey1
+            - name: STOCK_SERVICE
+              valueFrom:
+                configMapKeyRef:
+                  name: catalogue-service-config
+                  key: stockService
+            - name: NEXT_SERVICE
+              valueFrom:
+                configMapKeyRef:
+                  name: catalogue-service-config
+                  key: nextService
+            - name: SERVICE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: catalogue-service-secrets
+                  key: service-api-key
+            #MYSQL
+            - name: MYSQL_HOST
+              value: catalogue-service-db
+
+            - name: MYSQL_USER
+              value: root
+            - name: MYSQL_PORT
+              value: "8081"
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: catalogue-service-secrets
+                  key: mysql-root-password
